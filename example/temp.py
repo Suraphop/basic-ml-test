@@ -158,7 +158,7 @@ def readTemp(frame):
             # cv2.FONT_HERSHEY_SIMPLEX, 0.65, (0, 255, 0), 2)
     #return result
 
-cap = cv2.VideoCapture(1)
+cap = cv2.VideoCapture(0)
 
 while(cap.isOpened()):
     ret, frame = cap.read()
