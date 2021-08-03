@@ -1,13 +1,9 @@
-# To add a new cell, type '# %%'
-# To add a new markdown cell, type '# %% [markdown]'
-# %%
-# import the necessary packages
+
 from imutils.perspective import four_point_transform
 from imutils import contours
 import imutils
 import cv2
-# define the dictionary of digit segments so we can identify
-# each digit on the thermostat
+
 DIGITS_LOOKUP = {
 	(1, 1, 1, 0, 1, 1, 1): 0,
 	(0, 0, 1, 0, 0, 1, 0): 1,
@@ -22,11 +18,9 @@ DIGITS_LOOKUP = {
 }
 
 
-# %%
-# load the example image
 import numpy as np
 
-image = cv2.imread("oxy2.jpg") # 7,10,11
+image = cv2.imread("oxy4.jpg") # 7,10,11
 # pre-process the image by resizing it, converting it to
 # graycale, blurring it, and computing an edge map
 image = imutils.resize(image, height=500,width =200)
@@ -45,15 +39,8 @@ gray_cvt = cv2.cvtColor(image_cvt, cv2.COLOR_BGR2GRAY)
 blurred = cv2.GaussianBlur(gray_cvt, (5, 5), 0)
 edged = cv2.Canny(blurred, 150, 150, 255) #220 220
 
-cv2.imshow('output',image)
-cv2.imshow('edge',edged)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
 
 
-# %%
-# find contours in the edge map, then sort them by their
-# size in descending order
 cnts = cv2.findContours(edged.copy(), cv2.RETR_EXTERNAL,
 	cv2.CHAIN_APPROX_SIMPLE)
 cnts = imutils.grab_contours(cnts)
@@ -70,22 +57,14 @@ for c in cnts:
 	if len(approx) == 4:
 		displayCnt = approx
 		break
-print(displayCnt)
+print('len:',len(displayCnt))
 
 
-# %%
-# extract the thermostat display, apply a perspective transform
-# to it
 warped = four_point_transform(gray, displayCnt.reshape(4, 2))
 output = four_point_transform(image, displayCnt.reshape(4, 2))
 
 
-cv2.imshow('d',warped)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
 
-
-# %%
 # threshold the warped image, then apply a series of morphological
 # operations to cleanup the thresholded image
 import numpy as np
@@ -120,13 +99,7 @@ xx_2 = int(y//1.4)
 
 thresh2 = thresh2[yy_0_2:,xx_0_2:xx_2]
 
-cv2.imshow('d',thresh)
-cv2.imshow('2',thresh2)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
 
-
-# %%
 
 # find contours in the thresholded image, then initialize the
 # digit contours lists
@@ -147,7 +120,6 @@ for c in cnts:
 print(len(digitCnts))
 
 
-# %%
 # sort the contours from left-to-right, then initialize the
 # actual digits themselves
 digitCnts = contours.sort_contours(digitCnts,
@@ -155,15 +127,12 @@ digitCnts = contours.sort_contours(digitCnts,
 digits = []
 
 
-# %%
 # loop over each of the digits
 for c in digitCnts:
 	# extract the digit ROI
 	(x, y, w, h) = cv2.boundingRect(c)
 	roi = thresh[y:y + h, x:x + w]
-	cv2.imshow("Output", roi)
-	cv2.waitKey(0)
-	cv2.destroyAllWindows()
+
 	
 	# compute the width and height of each of the 7 segments
 	# we are going to examine
@@ -209,7 +178,6 @@ cv2.putText(image, "Oxygen :"+str(number), (10, 20),
 print(number)
 
 
-# %%
 # find contours in the thresholded image, then initialize the
 # digit contours lists
 cnts = cv2.findContours(thresh2.copy(), cv2.RETR_EXTERNAL,
@@ -226,7 +194,7 @@ for c in cnts:
 	# print('h',h)
 	if w >= 10 and (h >= 10 and h <= 130):
 		digitCnts.append(c)
-print(len(digitCnts))
+
 
 
 # sort the contours from left-to-right, then initialize the
@@ -236,15 +204,12 @@ digitCnts = contours.sort_contours(digitCnts,
 digits = []
 
 
-# %%
 # loop over each of the digits
 for c in digitCnts:
 	# extract the digit ROI
 	(x, y, w, h) = cv2.boundingRect(c)
 	roi = thresh2[y:y + h, x:x + w]
-	cv2.imshow("Output", roi)
-	cv2.waitKey(0)
-	cv2.destroyAllWindows()
+
 	
 	# compute the width and height of each of the 7 segments
 	# we are going to examine
@@ -289,11 +254,6 @@ cv2.putText(image, "pluse :"+str(number), (10, 50),
 	cv2.FONT_HERSHEY_SIMPLEX, 0.65, (255, 255, 0), 2)
 print(number)
 
-
-# %%
-# display the digits
-
-# print("{}{}.{}".format(*digits))
 
 cv2.imshow("Input", image)
 #cv2.imshow("Output", output)
